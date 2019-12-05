@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+
+	//"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -16,17 +18,26 @@ import (
 	"time"
 )
 
+/*
+	SEESION存储信息
+*/
+type UserInfo struct {
+	CurrConn   *net.TCPConn
+	SignInTime time.Time
+}
+
 var (
-	GConn2UserMap = &sync.Map{}
+	GConn2IdMap = &sync.Map{}
+	GId2InfoMap = &sync.Map{}
 )
 
 const (
 	DEFAULTPORT  = 7788
 	DEFAULT_PATH = "./file/"
-	HEAD_LEN     = 5
+	HEAD_LEN     = 10
 
-	UP_FILE_INFO      = "up_file_info"
-	UP_FILE_INFO_RESP = "up_file_info_resp"
+	CHECK_VER      = "check_ver"
+	CHECK_VER_RESP = "check_ver_resp"
 
 	SIGN_IN      = "sign_in"
 	SIGN_IN_RESP = "sign_in_resp"
@@ -67,38 +78,35 @@ type SignIn struct {
 type SignInResp struct {
 	Method string `json:"method"`
 	Result bool   `json:"result"`
-	Msg    string `json:"msg"`
+	ErrMsg string `json:"errMsg"`
 }
 
-type UpFileInfo struct {
-	Method string `json:"method"`
-	Sn     string `json:"sn"`
-	Name   string `json:"name"`
-	Length int    `json:"length"`
-}
-
-type UpFileInfoResp struct {
+type CheckVer struct {
 	Method  string `json:"method"`
-	Sn      string `json:"sn"`
-	Success bool   `json:"success"`
+	CurrVer int    `json:"currver"`
+}
+
+type CheckVerResp struct {
+	Method string `json:"method"`
+	Result bool   `json:"result"`
+	ErrMsg string `json:"errMsg"`
 }
 
 /*
 	语音通知消息
 */
 type VoiceMsg struct {
-	Method string `json:"method"`
-	Sn     string `json:"sn"`
-	From   string `json:"from"`
-	To     string `json:"to"`
-	Name   string `json:"name"`
-	Msg    string `json:"msg"`
+	Method   string `json:"method"`
+	Sn       string `json:"sn"`
+	From     string `json:"from"`
+	To       string `json:"to"`
+	FileName string `json:"filename"`
 }
 
 type VoiceMsgResp struct {
-	Method  string `json:"method"`
-	Sn      string `json:"sn"`
-	Success bool   `json:"success"`
+	Method string `json:"method"`
+	Result bool   `json:"result"`
+	ErrMsg string `json:"errMsg"`
 }
 
 /*
@@ -113,9 +121,9 @@ type TextMsg struct {
 }
 
 type TextMsgResp struct {
-	Method  string `json:"method"`
-	Sn      string `json:"sn"`
-	Success bool   `json:"success"`
+	Method string `json:"method"`
+	Result bool   `json:"result"`
+	ErrMsg string `json:"errMsg"`
 }
 
 /*
@@ -149,9 +157,14 @@ func UploadPics_input(w http.ResponseWriter, r *http.Request) {
 /*
 	处理设备的各个指令，根据指令调用各自的函数进行处理
 */
+//	return ioutil.ReadFile("./file/game.apk")
+
+/*
+	处理设备的各个指令，根据指令调用各自的函数进行处理
+*/
 func ProcData(conn *net.TCPConn, packBuf []byte) error {
 	var f *os.File
-	f, err := os.Create("./file/9999999999.wav")
+	f, err := os.Open("./file/9999999999.wav")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -159,39 +172,152 @@ func ProcData(conn *net.TCPConn, packBuf []byte) error {
 	return nil
 }
 
+func goSignMsg(conn *net.TCPConn, signIn SignIn) error {
+	GConn2IdMap.Store(conn, signIn.User)
+	GId2InfoMap.Store(signIn.User, UserInfo{CurrConn: conn, SignInTime: time.Now()})
+	var resp SignInResp
+	resp.Method = SIGN_IN_RESP
+	resp.Result = true
+	resp.ErrMsg = "登录成功"
+	respBuf, _ := json.Marshal(resp)
+	log.Println(string(respBuf))
+	sendPacket(conn, respBuf)
+	return nil
+}
+
+func getToConn(toUser string) *net.TCPConn {
+	//
+	currObj, ok := GId2InfoMap.Load(toUser)
+	if !ok {
+		log.Println(toUser + "缓存信息没有获取到")
+	}
+	currNode, ret := currObj.(UserInfo)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	return currNode.CurrConn
+}
+
+func goTextMsg(conn *net.TCPConn, texgMsg TextMsg) error {
+	//
+	toUser := texgMsg.To
+	toConn := getToConn(toUser)
+
+	transBuf, _ := json.Marshal(texgMsg)
+	sendPacket(toConn, transBuf)
+
+	log.Println("转发消息......")
+	var resp TextMsgResp
+	resp.Method = TEXT_MSG_RESP
+	resp.Result = true
+	resp.ErrMsg = "成功"
+	respBuf, _ := json.Marshal(resp)
+	sendPacket(conn, respBuf)
+	return nil
+}
+
+func goCheckVer(conn *net.TCPConn, signIn SignIn) error {
+	var resp SignInResp
+	resp.Method = SIGN_IN_RESP
+	resp.Result = true
+	resp.ErrMsg = "登录成功"
+	respBuf, _ := json.Marshal(resp)
+	sendPacket(conn, respBuf)
+	return nil
+}
+
+func goVoiceMsg(conn *net.TCPConn, voiceMsg VoiceMsg) error {
+
+	toUser := voiceMsg.To
+	toConn := getToConn(toUser)
+
+	transBuf, _ := json.Marshal(voiceMsg)
+	sendPacket(toConn, transBuf)
+
+	var resp VoiceMsgResp
+	resp.Method = TEXT_MSG_RESP
+	resp.ErrMsg = "登录成功"
+	respBuf, _ := json.Marshal(resp)
+	sendPacket(conn, respBuf)
+	return nil
+}
+
 /*
-	处理设备的各个指令，根据指令调用各自的函数进行处理
+	1、处理各个指令
 */
-func ProcPacket(conn *net.TCPConn, packBuf []byte) error {
+func ProcPacket(conn *net.TCPConn, packBuf []byte) (string, error) {
 	var command Command
 	if err := json.Unmarshal(packBuf, &command); err != nil {
 		log.Println(err)
 	}
 	switch command.Method {
-
 	case SIGN_IN:
 		var signIn SignIn
 		if err := json.Unmarshal(packBuf, &signIn); err != nil {
 			log.Println(err)
-			return err
+			return "", err
 		}
-
-	case UP_FILE_INFO:
-		var upInfo UpFileInfo
-		if err := json.Unmarshal(packBuf, &upInfo); err != nil {
+		goSignMsg(conn, signIn)
+	case CHECK_VER:
+		var signIn SignIn
+		if err := json.Unmarshal(packBuf, &signIn); err != nil {
 			log.Println(err)
-			return err
+			return "", err
 		}
-		log.Println(upInfo)
 
+	case TEXT_MSG:
+		var texgMsg TextMsg
+		if err := json.Unmarshal(packBuf, &texgMsg); err != nil {
+			log.Println(err)
+			return "abc1.png", err
+		}
+		log.Println(texgMsg)
+		goTextMsg(conn, texgMsg)
 	case VOICE_MSG:
 		var voiceMsg VoiceMsg
 		if err := json.Unmarshal(packBuf, &voiceMsg); err != nil {
 			log.Println(err)
-			return err
+			return "", err
+		}
+		log.Println(voiceMsg.FileName)
+		return voiceMsg.FileName, nil
+	}
+	return "", nil
+}
+
+func sendPacket(conn *net.TCPConn, cmdBuf []byte) error {
+	head := make([]byte, 2)
+	head[0] = 0x7E
+	head[1] = 0x13
+	allLenBuf := IntToBytes(HEAD_LEN + len(cmdBuf))
+	dataLenBuf := IntToBytes(0)
+	head = append(head, []byte(allLenBuf[0:4])...)
+	head = append(head, []byte(dataLenBuf[0:4])...)
+	head = append(head, []byte(cmdBuf)...)
+	n, err := conn.Write([]byte(head))
+	if err != nil {
+		conn.Close()
+	}
+	log.Println("发送长度==>", n)
+	return err
+}
+
+func recvPacket(reader io.Reader, conn *net.TCPConn, dataLen int32) ([]byte, error) {
+	dataBuf := make([]byte, dataLen)
+	nSum := 0
+	for dataLen > 0 {
+		conn.SetReadDeadline(time.Now().Add(time.Second * 180))
+		tmpBuf := make([]byte, dataLen)
+		if nLen, err := reader.Read(tmpBuf); err != nil {
+			return nil, err
+		} else {
+			conn.SetReadDeadline(time.Time{})
+			copy(dataBuf[nSum:], tmpBuf)
+			nSum += nLen
+			dataLen = dataLen - int32(nLen)
 		}
 	}
-	return nil
+	return dataBuf, nil
 }
 
 /*
@@ -206,49 +332,45 @@ func tcpPipe(conn *net.TCPConn) {
 		log.Println("Disconnect===>:"+ipStr, "Conn:", conn)
 		conn.Close()
 	}()
-	reader := bufio.NewReader(conn)
-	headBuf := make([]byte, 5)
 	for {
-		for {
-			conn.SetReadDeadline(time.Now().Add(time.Second * 180))
-			var nLen int
-			nLen, err := reader.Read(headBuf)
-			if err != nil || nLen <= 0 {
-				log.Println(err)
-				return
-			}
-			if nLen < HEAD_LEN {
-				continue
-			} else {
-				break
-			}
-		}
-		packTotal := BytesToInt(headBuf[1:5])
-		packLen := int(packTotal) - 5
-		log.Println("total---->packlen", packTotal, packLen)
-		packBuf := make([]byte, packLen)
-		tmpBuf := make([]byte, 1024*1024)
-		var nSum int
-		for packLen > 0 {
-			nLen, err := reader.Read(tmpBuf)
-			if err != nil || nLen <= 0 {
-				log.Println(err)
-				return
-			}
-			log.Println("recv====>", nLen)
-			copy(packBuf[nSum:], tmpBuf)
-			nSum += nLen
-			packLen = packLen - nLen
-		}
-		if headBuf[0] == 'B' {
-			log.Println("command packet")
-			log.Println(string(packBuf))
-			if err := ProcPacket(conn, packBuf); err != nil {
-				log.Println(err)
-			}
+		reader := bufio.NewReader(conn)
+		var allLen, cmdLen, dataLen int32
+		var fileName string
+		if headBuf, err := recvPacket(reader, conn, HEAD_LEN); err != nil {
+			log.Println(err)
+			return
 		} else {
-			log.Println("data packet")
-			ProcData(conn, packBuf)
+			allLen = BytesToInt(headBuf[2:6])
+			cmdLen = BytesToInt(headBuf[6:10])
+			dataLen = allLen - cmdLen - HEAD_LEN
+		}
+		log.Println("总长度->命令包长度->", allLen, cmdLen)
+		if cmdLen >= allLen {
+			log.Println("错误：命令包长度>=总长度")
+			return
+		}
+		if cmdBuf, err := recvPacket(reader, conn, cmdLen); err != nil {
+			return
+		} else {
+			log.Println("命令包原始串===>", string(cmdBuf))
+			if fileName, err = ProcPacket(conn, cmdBuf); err != nil {
+				return
+			}
+		}
+		if dataLen == 0 {
+			continue
+		}
+		if dataBuf, err := recvPacket(reader, conn, dataLen); err != nil {
+			return
+		} else {
+			var ff *os.File
+			ff, err := os.Create("./file/" + fileName)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			ff.Write(dataBuf)
+			ff.Close()
 		}
 	}
 }
