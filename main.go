@@ -42,6 +42,9 @@ const (
 	SIGN_IN      = "sign_in"
 	SIGN_IN_RESP = "sign_in_resp"
 
+	SIGN_OUT      = "sign_out"
+	SIGN_OUT_RESP = "sign_out_resp"
+
 	TEXT_MSG      = "text_msg"
 	TEXT_MSG_RESP = "text_msg_resp"
 
@@ -76,6 +79,17 @@ type SignIn struct {
 }
 
 type SignInResp struct {
+	Method string `json:"method"`
+	Result bool   `json:"result"`
+	ErrMsg string `json:"errMsg"`
+}
+
+type SignOut struct {
+	Method string `json:"method"`
+	User   string `json:"user"`
+}
+
+type SignOutResp struct {
 	Method string `json:"method"`
 	Result bool   `json:"result"`
 	ErrMsg string `json:"errMsg"`
@@ -172,7 +186,18 @@ func ProcData(conn *net.TCPConn, packBuf []byte) error {
 	return nil
 }
 
-func goSignMsg(conn *net.TCPConn, signIn SignIn) error {
+func goSignOutMsg(conn *net.TCPConn, signOut SignOut) error {
+	var resp SignOutResp
+	resp.Method = SIGN_OUT_RESP
+	resp.Result = true
+	resp.ErrMsg = "登录成功"
+	respBuf, _ := json.Marshal(resp)
+	log.Println(string(respBuf))
+	sendPacket(conn, respBuf)
+	return nil
+}
+
+func goSignInMsg(conn *net.TCPConn, signIn SignIn) error {
 	GConn2IdMap.Store(conn, signIn.User)
 	GId2InfoMap.Store(signIn.User, UserInfo{CurrConn: conn, SignInTime: time.Now()})
 	var resp SignInResp
@@ -257,7 +282,14 @@ func ProcPacket(conn *net.TCPConn, packBuf []byte) (string, error) {
 			log.Println(err)
 			return "", err
 		}
-		goSignMsg(conn, signIn)
+		goSignInMsg(conn, signIn)
+	case SIGN_OUT:
+		var signOut SignOut
+		if err := json.Unmarshal(packBuf, &signOut); err != nil {
+			log.Println(err)
+			return "", err
+		}
+		goSignOutMsg(conn, signOut)
 	case CHECK_VER:
 		var signIn SignIn
 		if err := json.Unmarshal(packBuf, &signIn); err != nil {
