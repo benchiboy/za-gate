@@ -10,12 +10,28 @@ import (
 	"io"
 
 	//"io/ioutil"
+	"flag"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"sync"
 	"time"
+	"za-gate/service/dbcomm"
+	"za-gate/service/msgtext"
+
+	goconf "github.com/pantsing/goconf"
+
+	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	http_srv   *http.Server
+	dbUrl      string
+	ccdbUrl    string
+	listenPort int
+	idleConns  int
+	openConns  int
 )
 
 /*
@@ -47,6 +63,12 @@ const (
 
 	TEXT_MSG      = "text_msg"
 	TEXT_MSG_RESP = "text_msg_resp"
+
+	GET_TEXT      = "get_text"
+	GET_TEXT_RESP = "get_text_resp"
+
+	GET_TEXT      = "get_text"
+	GET_TEXT_RESP = "get_text_resp"
 
 	VOICE_MSG      = "voice_msg"
 	VOICE_MSG_RESP = "voice_msg_resp"
@@ -131,6 +153,8 @@ type TextMsg struct {
 	Sn     string `json:"sn"`
 	From   string `json:"from"`
 	To     string `json:"to"`
+	Lng    string `json:"lng"`
+	Lat    string `json:"lat"`
 	Msg    string `json:"msg"`
 }
 
@@ -223,15 +247,37 @@ func getToConn(toUser string) *net.TCPConn {
 	return currNode.CurrConn
 }
 
+func saveText(from string, to string, lng string, lat string, msg string) error {
+	textDB := msgtext.New(dbcomm.GetDB(), msgtext.DEBUG)
+	var e msgtext.MsgText
+	e.FromId = from
+	e.ToId = to
+	e.Slat = lat
+	e.Slng = lng
+	e.Content = msg
+	textDB.InsertEntity(e, nil)
+	return nil
+}
+
+func getText(msgNo string) string {
+	textDB := msgtext.New(dbcomm.GetDB(), msgtext.DEBUG)
+	var search msgtext.Search
+	search.MsgNo = msgNo
+	u, _ := textDB.Get(search)
+
+	return u.Content
+}
+
 func goTextMsg(conn *net.TCPConn, texgMsg TextMsg) error {
 	//
-	toUser := texgMsg.To
-	toConn := getToConn(toUser)
+	//toUser := texgMsg.To
+	//toConn := getToConn(toUser)
 
-	transBuf, _ := json.Marshal(texgMsg)
-	sendPacket(toConn, transBuf)
+	//transBuf, _ := json.Marshal(texgMsg)
+	//sendPacket(toConn, transBuf)
+	//log.Println("转发消息......")
 
-	log.Println("转发消息......")
+	saveText(texgMsg.From, texgMsg.To, texgMsg.Lng, texgMsg.Lat, texgMsg.Msg)
 	var resp TextMsgResp
 	resp.Method = TEXT_MSG_RESP
 	resp.Result = true
@@ -305,6 +351,16 @@ func ProcPacket(conn *net.TCPConn, packBuf []byte) (string, error) {
 		}
 		log.Println(texgMsg)
 		goTextMsg(conn, texgMsg)
+
+	case GET_TEXT_MSG:
+		var texgMsg TextMsg
+		if err := json.Unmarshal(packBuf, &texgMsg); err != nil {
+			log.Println(err)
+			return "abc1.png", err
+		}
+		log.Println(texgMsg)
+		goTextMsg(conn, texgMsg)
+
 	case VOICE_MSG:
 		var voiceMsg VoiceMsg
 		if err := json.Unmarshal(packBuf, &voiceMsg); err != nil {
@@ -407,6 +463,32 @@ func tcpPipe(conn *net.TCPConn) {
 	}
 }
 
+func init() {
+	log.SetFlags(log.Ldate | log.Lshortfile | log.Lmicroseconds)
+	log.SetOutput(io.MultiWriter(os.Stdout, &lumberjack.Logger{
+		Filename:   "jcd.log",
+		MaxSize:    500, // megabytes
+		MaxBackups: 50,
+		MaxAge:     90, //days
+	}))
+	envConf := flag.String("env", "config-ci.json", "select a environment config file")
+	flag.Parse()
+	log.Println("config file ==", *envConf)
+	c, err := goconf.New(*envConf)
+	if err != nil {
+		log.Fatalln("读配置文件出错", err)
+	}
+
+	//填充配置文件
+	c.Get("/config/LISTEN_PORT", &listenPort)
+	c.Get("/config/DB_URL", &dbUrl)
+	c.Get("/config/OPEN_CONNS", &openConns)
+	c.Get("/config/IDLE_CONNS", &idleConns)
+
+	dbcomm.InitDB(dbUrl, openConns, openConns)
+
+}
+
 func main() {
 	os.Mkdir("file", 0777)
 
@@ -414,7 +496,7 @@ func main() {
 		log.Println("========>web start....")
 		http.Handle("/pollux/", http.StripPrefix("/pollux/", http.FileServer(http.Dir("file"))))
 		http.HandleFunc("/upload", UploadPics_input)
-		err := http.ListenAndServe(":8080", nil)
+		err := http.ListenAndServe(":9080", nil)
 		if err != nil {
 			log.Fatal("ListenAndServe: ", err)
 		}

@@ -1,0 +1,122 @@
+2019/12/23 17:14:33.723620 main.go:436: config file == config-ci.json
+2019/12/23 17:14:33.724438 main.go:455: ========>web start....
+2019/12/23 17:14:33.724578 main.go:468: ========>start....
+2019/12/23 17:16:34.898507 main.go:437: config file == config-ci.json
+2019/12/23 17:16:35.074818 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:16:35.074966 main.go:470: ========>start....
+2019/12/23 17:16:35.074962 main.go:457: ========>web start....
+2019/12/23 17:17:33.718366 main.go:437: config file == config-ci.json
+2019/12/23 17:17:33.718769 main.go:440: 读配置文件出错 invalid character '}' looking for beginning of object key string
+2019/12/23 17:18:10.291734 main.go:437: config file == config-ci.json
+2019/12/23 17:18:10.303258 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:18:10.303455 main.go:457: ========>web start....
+2019/12/23 17:18:10.303483 main.go:470: ========>start....
+2019/12/23 17:28:41.697817 main.go:451: config file == config-ci.json
+2019/12/23 17:28:41.708592 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:28:41.708777 main.go:471: ========>web start....
+2019/12/23 17:28:41.708813 main.go:484: ========>start....
+2019/12/23 17:29:13.490602 main.go:490: Has A New Connection===>:10.89.4.244:61615
+2019/12/23 17:29:13.726017 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:29:13.726413 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:29:13.726620 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:29:13.726737 main.go:364: 发送长度==> 73
+2019/12/23 17:29:25.932739 main.go:403: EOF
+2019/12/23 17:29:25.932914 main.go:395: Disconnect===>:10.89.4.244:61615 Conn: &{{0xc000120200}}
+2019/12/23 17:29:44.979239 main.go:490: Has A New Connection===>:10.89.4.244:61753
+2019/12/23 17:29:45.180339 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:29:45.180397 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:29:45.180431 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:29:45.180456 main.go:364: 发送长度==> 73
+2019/12/23 17:29:49.238966 main.go:403: EOF
+2019/12/23 17:29:49.239111 main.go:395: Disconnect===>:10.89.4.244:61753 Conn: &{{0xc000120280}}
+2019/12/23 17:29:54.529067 main.go:490: Has A New Connection===>:10.89.4.244:61794
+2019/12/23 17:29:54.672044 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:29:54.672266 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:29:54.672323 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:29:54.672431 main.go:364: 发送长度==> 73
+2019/12/23 17:30:00.066476 main.go:410: 总长度->命令包长度-> 135 125
+2019/12/23 17:30:00.066721 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"23232","sn":"17:30:00","to":"b"}
+2019/12/23 17:30:00.066816 main.go:337: {text_msg 17:30:00 a b 114.11299999999997 22.541999999622522 23232}
+2019/12/23 17:30:00.066857 msgtext.go:571: Insert ===> Insert into  msg_text(from,to,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:30:00.079762 msgtext.go:582: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from,to,slng,slat,content)  values(?,?,?,?,?)' at line 1
+2019/12/23 17:30:00.079858 main.go:364: 发送长度==> 68
+2019/12/23 17:37:54.292582 main.go:451: config file == config-ci.json
+2019/12/23 17:37:54.302683 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:37:54.302925 main.go:484: ========>start....
+2019/12/23 17:37:54.302897 main.go:471: ========>web start....
+2019/12/23 17:37:59.904227 main.go:490: Has A New Connection===>:10.89.4.244:63789
+2019/12/23 17:38:00.105979 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:38:00.106157 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:38:00.106454 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:38:00.106547 main.go:364: 发送长度==> 73
+2019/12/23 17:38:23.279026 main.go:403: EOF
+2019/12/23 17:38:23.279097 main.go:395: Disconnect===>:10.89.4.244:63789 Conn: &{{0xc00014c180}}
+2019/12/23 17:38:27.231603 main.go:490: Has A New Connection===>:10.89.4.244:63903
+2019/12/23 17:38:27.383912 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:38:27.384815 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:38:27.384970 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:38:27.385118 main.go:364: 发送长度==> 73
+2019/12/23 17:38:33.670605 main.go:410: 总长度->命令包长度-> 136 126
+2019/12/23 17:38:33.670689 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"232323","sn":"17:38:33","to":"b"}
+2019/12/23 17:38:33.670782 main.go:337: {text_msg 17:38:33 a b 114.11299999999997 22.541999999622522 232323}
+2019/12/23 17:38:33.670829 msgtext.go:572: Insert ===> Insert into  msg_text(from_id,to_id,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:38:33.683210 msgtext.go:583: Error  ===> Error 1146: Table 'armyfight.msg_text' doesn't exist
+2019/12/23 17:38:33.683378 main.go:364: 发送长度==> 68
+2019/12/23 17:39:10.032825 main.go:451: config file == config-ci.json
+2019/12/23 17:39:10.045611 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:39:10.045737 main.go:484: ========>start....
+2019/12/23 17:39:10.045813 main.go:471: ========>web start....
+2019/12/23 17:39:15.319957 main.go:490: Has A New Connection===>:10.89.4.244:64111
+2019/12/23 17:39:15.560479 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:39:15.560733 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:39:15.560885 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:39:15.560953 main.go:364: 发送长度==> 73
+2019/12/23 17:39:27.628652 main.go:403: EOF
+2019/12/23 17:39:27.629107 main.go:395: Disconnect===>:10.89.4.244:64111 Conn: &{{0xc000154080}}
+2019/12/23 17:39:32.363499 main.go:490: Has A New Connection===>:10.89.4.244:64183
+2019/12/23 17:39:32.541838 main.go:410: 总长度->命令包长度-> 57 47
+2019/12/23 17:39:32.541894 main.go:418: 命令包原始串===> {"method":"sign_in","pass":"123456","user":"a"}
+2019/12/23 17:39:32.541947 main.go:226: {"method":"sign_in_resp","result":true,"errMsg":"登录成功"}
+2019/12/23 17:39:32.542016 main.go:364: 发送长度==> 73
+2019/12/23 17:39:43.808207 main.go:410: 总长度->命令包长度-> 151 141
+2019/12/23 17:39:43.808267 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"dssssssssssssssssssss","sn":"17:39:43","to":"b"}
+2019/12/23 17:39:43.808344 main.go:337: {text_msg 17:39:43 a b 114.11299999999997 22.541999999622522 dssssssssssssssssssss}
+2019/12/23 17:39:43.808378 msgtext.go:572: Insert ===> Insert into  msg_text(from_id,to_id,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:39:43.822784 msgtext.go:594: Insert ===> LastInsertId: 74
+2019/12/23 17:39:43.822872 msgtext.go:597: Insert ===> RowsAffected: 1
+2019/12/23 17:39:43.822901 msgtext.go:601: Elapsed===> 14.525915ms
+2019/12/23 17:39:43.823020 main.go:364: 发送长度==> 68
+2019/12/23 17:39:53.377677 main.go:410: 总长度->命令包长度-> 150 140
+2019/12/23 17:39:53.377754 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"dsfsfdsfdsfdsfdfdfds","sn":"17:39:53","to":"b"}
+2019/12/23 17:39:53.377804 main.go:337: {text_msg 17:39:53 a b 114.11299999999997 22.541999999622522 dsfsfdsfdsfdsfdfdfds}
+2019/12/23 17:39:53.377823 msgtext.go:572: Insert ===> Insert into  msg_text(from_id,to_id,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:39:53.394401 msgtext.go:594: Insert ===> LastInsertId: 75
+2019/12/23 17:39:53.394507 msgtext.go:597: Insert ===> RowsAffected: 1
+2019/12/23 17:39:53.394523 msgtext.go:601: Elapsed===> 16.703414ms
+2019/12/23 17:39:53.394580 main.go:364: 发送长度==> 68
+2019/12/23 17:40:00.265411 main.go:410: 总长度->命令包长度-> 158 148
+2019/12/23 17:40:00.265451 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"dsffffffffffffffffffffffffff","sn":"17:40:00","to":"b"}
+2019/12/23 17:40:00.265493 main.go:337: {text_msg 17:40:00 a b 114.11299999999997 22.541999999622522 dsffffffffffffffffffffffffff}
+2019/12/23 17:40:00.265519 msgtext.go:572: Insert ===> Insert into  msg_text(from_id,to_id,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:40:00.279604 msgtext.go:594: Insert ===> LastInsertId: 76
+2019/12/23 17:40:00.279659 msgtext.go:597: Insert ===> RowsAffected: 1
+2019/12/23 17:40:00.279672 msgtext.go:601: Elapsed===> 14.155869ms
+2019/12/23 17:40:00.279732 main.go:364: 发送长度==> 68
+2019/12/23 17:41:00.193380 main.go:410: 总长度->命令包长度-> 152 142
+2019/12/23 17:41:00.197319 main.go:418: 命令包原始串===> {"from":"a","lat":"22.541999999622522","lng":"114.11299999999997","method":"text_msg","msg":"☺️😞😏😏🀋","sn":"17:41:00","to":"b"}
+2019/12/23 17:41:00.197406 main.go:337: {text_msg 17:41:00 a b 114.11299999999997 22.541999999622522 ☺️😞😏😏🀋}
+2019/12/23 17:41:00.197445 msgtext.go:572: Insert ===> Insert into  msg_text(from_id,to_id,slng,slat,content)  values(?,?,?,?,?)
+2019/12/23 17:41:00.211985 msgtext.go:594: Insert ===> LastInsertId: 77
+2019/12/23 17:41:00.212058 msgtext.go:597: Insert ===> RowsAffected: 1
+2019/12/23 17:41:00.212110 msgtext.go:601: Elapsed===> 14.668073ms
+2019/12/23 17:41:00.212194 main.go:364: 发送长度==> 68
+2019/12/23 17:41:33.173932 main.go:403: EOF
+2019/12/23 17:41:33.174248 main.go:395: Disconnect===>:10.89.4.244:64183 Conn: &{{0xc000154100}}
+2019/12/23 17:53:53.779757 main.go:460: config file == config-ci.json
+2019/12/23 17:53:53.790210 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:53:53.790279 main.go:480: ========>web start....
+2019/12/23 17:53:53.790349 main.go:493: ========>start....
+2019/12/23 17:55:15.442074 main.go:473: config file == config-ci.json
+2019/12/23 17:55:15.454188 dbcomm.go:29: Database Connected successful!
+2019/12/23 17:55:15.454299 main.go:493: ========>web start....
+2019/12/23 17:55:15.454381 main.go:506: ========>start....
